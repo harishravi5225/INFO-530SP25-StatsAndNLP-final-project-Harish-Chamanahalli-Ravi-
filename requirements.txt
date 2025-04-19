@@ -1,0 +1,7 @@
+OPTION 1: Develop an accessible technical tutorial for an existing NLP tool or an NLP process
+
+If you choose this option, your proposal forum post should include:
+
+the tool or process you'll be exploring
+a brief summary of what the tool does or what the process accomplishes
+a link to your public GitHub repository where the project will be developed
