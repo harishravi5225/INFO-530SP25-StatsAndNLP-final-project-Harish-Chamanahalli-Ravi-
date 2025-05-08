@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Named Entity Recognition (NER) using spaCy</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f9fb;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        header {
+            background-color: #005a9c;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        main {
+            padding: 40px;
+        }
+         h2, h3 {
+            color: #005a9c;
+        }
+        pre, code {
+            background-color: #f4f4f4;
+            padding: 12px;
+            border-left: 4px solid #ccc;
+            overflow-x: auto;
+            display: block;
+        }
+        .output {
+            background: #e6ffed;
+            border: 1px solid #b2f2bb;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: monospace;
+        }
+        section {
+            margin-bottom: 40px;
+        }
+        a {
+            color: #005a9c;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Project Introduction: Named Entity Recognition (NER) with spaCy</h1>
+         <p>Hello! My name is <strong>Harish Chamanahalli ravi</strong>, and in this project, I will be exploring <strong>Named Entity Recognition (NER)</strong> using spaCy a popular open-source Natural Language Processing (NLP) library in Python.</p>
+    </header>
+    <main>
+        <section>
+            <h2>📌 Introduction</h2>
+            <p>
+                Named Entity Recognition (NER) is a crucial component in Natural Language Processing (NLP) that involves identifying and categorizing key pieces of information (entities) in text such as:
+            </p>
+            <ul>
+                <li>People</li>
+                <li>Organizations</li>
+                <li>Locations</li>
+                <li>Dates</li>
+                <li>Monetary values</li>
+            </ul>
+            <p>
+                This tutorial explores how to implement NER using <strong>spaCy</strong>, a fast and accurate open-source NLP library built for industrial-strength applications. We'll cover basic usage, visualization, customization of NER pipelines, and discuss real-world use cases such as extracting companies from job postings and names from news articles.
+            </p>
+        </section>
+
+        <section>
+            <h2>🔧 Installation & Setup</h2>
+            <p>
+            Before using spaCy for Named Entity Recognition (NER), you need to install the necessary libraries and models. Follow these steps:
+            </p>
+
+            <h3>Step 1: Install Python</h3>
+            <p>
+            Ensure you have Python 3.6 or higher installed. You can check your Python version by running:
+            </p>
+            <pre><code>python --version</code></pre>
+
+            <h3>Step 2: Create a Virtual Environment (Recommended)</h3>
+            <p>
+            To avoid dependency conflicts, it's best to use a virtual environment:
+            </p>
+            <pre><code>
+            # For macOS/Linux:
+            python3 -m venv ner_env
+            source ner_env/bin/activate
+
+            # For Windows:
+            python -m venv ner_env
+            ner_env\Scripts\activate
+            </code></pre>
+
+            <h3>Step 3: Install spaCy</h3>
+            <pre><code>pip install -U spacy</code></pre>
+
+            <h3>Step 4: Download the English NLP Model</h3>
+            <p>
+            spaCy requires a language model to perform NER. For English, run:
+            </p>
+            <pre><code>python -m spacy download en_core_web_sm</code></pre>
+
+            <p>
+            To test your installation, run the following:
+            </p>
+            <pre><code>
+            python -m spacy info
+            </code></pre>
+
+            <h3>Optional: Install Jupyter Notebook</h3>
+            <p>
+            If you'd like to experiment in a notebook environment:
+            </p>
+            <pre><code>
+            pip install notebook
+            jupyter notebook
+            </code></pre>
+
+            <h3>Optional: Install Visualizer (in browser)</h3>
+            <p>
+            For entity visualization in your browser using spaCy’s <code>displacy</code> server:
+            </p>
+            <pre><code>
+            # Include in your Python code
+            from spacy import displacy
+            displacy.serve(nlp("Facebook is based in California."), style="ent")
+            </code></pre>
+            <p>It will open an interactive NER visualization in your browser. </p>
+
+        </section>
+
+        <section>
+            <<h2>📦 Load a Pre-trained spaCy Model</h2>
+
+            <p>
+              spaCy provides several pre-trained models for different languages and sizes. For most English language tasks, the model <code>en_core_web_sm</code> is a great starting point. These models include pipelines for tokenization, part-of-speech tagging, parsing, named entity recognition (NER), and more.
+            </p>
+            
+            <h3>✅ Step 1: Import spaCy and Load the Model</h3>
+            
+            <pre><code class="language-python">
+            import spacy
+            
+            # Load the small English model
+            nlp = spacy.load("en_core_web_sm")
+            </code></pre>
+            
+            <p>
+              The <code>spacy.load()</code> function loads the model into memory and returns an NLP pipeline object that can be used to analyze text.
+            </p>
+            
+            <h3>✅ Step 2: Analyze Text</h3>
+            
+            <pre><code class="language-python">
+            # Sample text
+            text = "Apple was founded by Steve Jobs in California in 1976."
+            
+            # Process the text
+            doc = nlp(text)
+            </code></pre>
+            
+            <p>
+              The <code>doc</code> object is a container for accessing tokens, entities, part-of-speech tags, etc. Now let’s extract the named entities:
+            </p>
+            
+            <h3>✅ Step 3: Extract and Display Named Entities</h3>
+            
+            <pre><code class="language-python">
+            for ent in doc.ents:
+                print(ent.text, ent.label_, ent.start_char, ent.end_char)
+            </code></pre>
+            
+            <h4>📤 Output:</h4>
+            
+            <pre><code>
+            Apple ORG 0 5
+            Steve Jobs PERSON 22 32
+            California GPE 36 46
+            1976 DATE 50 54
+            </code></pre>
+            
+            <p>
+              Each entity is represented by:
+              <ul>
+                <li><strong>ent.text</strong> – the actual entity string</li>
+                <li><strong>ent.label_</strong> – the type of the entity (e.g., ORG, PERSON, DATE)</li>
+                <li><strong>ent.start_char / end_char</strong> – character offset in the original string</li>
+              </ul>
+            </p>
+            
+            <h3>🧠 Explanation of Entity Types</h3>
+            <table border="1" cellpadding="8" cellspacing="0">
+              <tr><th>Entity</th><th>Label</th><th>Description</th></tr>
+              <tr><td>Apple</td><td>ORG</td><td>Organization</td></tr>
+              <tr><td>Steve Jobs</td><td>PERSON</td><td>Person's name</td></tr>
+              <tr><td>California</td><td>GPE</td><td>Geopolitical Entity (e.g. city, country)</td></tr>
+              <tr><td>1976</td><td>DATE</td><td>Absolute or relative date</td></tr>
+            </table>
+            
+            <h3>🎨 Optional: Visualize with displaCy</h3>
+            <pre><code class="language-python">
+            from spacy import displacy
+            
+            # Render in the browser
+            displacy.serve(doc, style="ent")
+            </code></pre>
+            
+            <p>
+              This opens an interactive visualization of named entities in your browser using spaCy’s built-in tool.
+            </p>
+            
+        </section>
+
+        <section>
+            <h2>🧠 Perform Named Entity Recognition (NER)</h2>
+
+            <p>
+            Now that we’ve loaded a pre-trained spaCy model, we can use it to perform Named Entity Recognition (NER) on any input text.
+            </p>
+
+            <p>
+            NER allows us to identify entities such as people, organizations, dates, locations, etc., and label them accordingly. This is done by simply passing a text string to the NLP pipeline and accessing the <code>ents</code> attribute of the processed document.
+            </p>
+
+            <h3>🔍 Example: Extracting Entities from Text</h3>
+
+            <pre><code class="language-python">
+            import spacy
+
+            # Load the small English model
+            nlp = spacy.load("en_core_web_sm")
+
+            # Sample input text
+            text = "Apple was founded by Steve Jobs in California and is now led by Tim Cook."
+
+            # Process the text with spaCy
+            doc = nlp(text)
+
+            # Display the named entities
+            for ent in doc.ents:
+                print(f"{ent.text:25} ➤ {ent.label_} ➤ {spacy.explain(ent.label_)}")
+            </code></pre>
+
+            <h4>📤 Output:</h4>
+            <pre><code>
+            Apple                    ➤ ORG       ➤ Companies, agencies, institutions
+            Steve Jobs               ➤ PERSON    ➤ People, including fictional
+            California               ➤ GPE       ➤ Countries, cities, states
+            Tim Cook                 ➤ PERSON    ➤ People, including fictional
+            </code></pre>
+
+            <h3>📌 Key Notes:</h3>
+            <ul>
+            <li><strong>doc.ents</strong> returns a list of all entities detected in the document.</li>
+            <li><strong>ent.text</strong> is the entity string (e.g., "Apple").</li>
+            <li><strong>ent.label_</strong> is the entity label (e.g., "ORG").</li>
+            <li><strong>spacy.explain(label)</strong> provides a short description of the label.</li>
+            </ul>
+
+            <h3>🎨 Optional: Visualizing Entities in HTML</h3>
+            <p>
+            spaCy provides a handy visualizer tool called <code>displacy</code> which can render NER results beautifully in HTML.
+            </p>
+
+            <pre><code class="language-python">
+            from spacy import displacy
+
+            # Render named entities in a browser or Jupyter Notebook
+            displacy.render(doc, style="ent", jupyter=True)
+            </code></pre>
+
+            <p><strong>Note:</strong> In non-Jupyter environments, use <code>displacy.serve(doc, style="ent")</code> to launch a web server.</p>
+
+            <h3>📷 Visualization Example</h3>
+            <img src="https://spacy.io/_images/displacy-ent.png" alt="NER Visualization Example" width="700"/>
+
+            <p>
+            The visualization clearly shows entity span
+
+        </section>
+
+        <section>
+            <h2>🎨 Visualize Entities with displaCy</h2>
+
+<p>
+  <strong>spaCy</strong> includes a built-in visualizer tool called <code>displacy</code>, which allows us to render entities directly from a processed document. This is especially useful for inspecting entity spans in text with colorful labels and better visual clarity.
+</p>
+
+<p>
+  The <code>displacy</code> tool can be used in Jupyter notebooks or served as an interactive HTML page. Below, we explore both usage scenarios.
+</p>
+
+<h3>🔍 Example: Using displaCy in Jupyter Notebook</h3>
+
+<pre><code class="language-python">
+import spacy
+from spacy import displacy
+
+# Load the small English model
+nlp = spacy.load("en_core_web_sm")
+
+# Input text
+text = "Barack Obama was born in Hawaii and served as the 44th President of the United States."
+
+# Process the text
+doc = nlp(text)
+
+# Render the visualization (in Jupyter)
+displacy.render(doc, style="ent", jupyter=True)
+</code></pre>
+
+<h4>📤 Output (Jupyter Notebook):</h4>
+<p>You’ll see the text displayed with highlighted entities, where:</p>
+<ul>
+  <li><strong>PERSON</strong> entities (e.g., Barack Obama) are shown in one color</li>
+  <li><strong>GPE</strong> (Geopolitical entities like Hawaii, United States) in another</li>
+</ul>
+
+<h3>🌐 Example: Using displaCy in a Web Browser</h3>
+
+                <p>If you're not using Jupyter, you can use <code>displacy.serve()</code> to launch a local web server and visualize the result in your browser.</p>
+
+                <pre><code class="language-python">
+                # Serve the visualization on localhost
+                displacy.serve(doc, style="ent")
+                </code></pre>
+
+                <h4>⚠️ Note:</h4>
+                <p>
+                This will open a new tab in your default browser with an interactive visualization of named entities in the text.
+                </p>
+
+                <h3>📷 Visualization Example:</h3>
+                <p>Below is a sample screenshot showing how named entities are rendered in spaCy's displaCy:</p>
+                <img src="https://spacy.io/_images/displacy-ent.png" alt="displaCy visualization example" width="700"/>
+
+                <h3>💡 Customizing displaCy Output:</h3>
+                <p>
+                You can pass options to customize the appearance:
+                </p>
+
+                <pre><code class="language-python">
+                options = {"ents": ["PERSON", "GPE", "ORG"], "colors": {"PERSON": "linear-gradient(90deg, #aa9cfc, #fc9ce7)"}}
+                displacy.render(doc, style="ent", jupyter=True, options=options)
+                </code></pre>
+
+                <p>This restricts the visualization to certain entity types and assigns custom colors.</p>
+
+                <h3>✅ Summary:</h3>
+                <ul>
+                <li><code>displacy.render()</code> – Renders in notebooks</li>
+                <li><code>displacy.serve()</code> – Launches browser visualization</li>
+                <li>Options available for customizing entity display</li>
+                </ul>
+
+        </section>
+
+        <section>
+            <h2>🛠️ Real-World Use Cases of Named Entity Recognition (NER)</h2>
+
+            <p>
+            Named Entity Recognition is widely used in real-world Natural Language Processing applications. It helps in automatically extracting structured information from unstructured text. Below are a few real-world use cases along with practical examples.
+            </p>
+
+            <h3>1. 📈 Extracting Company Names from Job Postings</h3>
+
+            <p>Many job boards and hiring platforms use NER to extract company names, locations, and job titles from user-submitted job descriptions.</p>
+
+            <pre><code class="language-python">
+            import spacy
+
+            nlp = spacy.load("en_core_web_sm")
+
+            job_posting = """
+            We are looking for a Senior Backend Engineer to join our team at Amazon in Seattle.
+            You will work closely with AWS and other cloud technologies.
+            """
+
+            doc = nlp(job_posting)
+
+            for ent in doc.ents:
+                print(f"{ent.text:30} ➤ {ent.label_} ➤ {spacy.explain(ent.label_)}")
+            </code></pre>
+
+            <h4>📤 Output:</h4>
+            <pre><code>
+            Senior Backend Engineer        ➤ PERSON ➤ People, including fictional
+            Amazon                         ➤ ORG    ➤ Companies, agencies, institutions
+            Seattle                        ➤ GPE    ➤ Countries, cities, states
+            AWS                            ➤ ORG    ➤ Companies, agencies, institutions
+            </code></pre>
+
+            <p>
+            The model automatically identifies the company (Amazon), location (Seattle), and relevant organizations (AWS), enabling job aggregators to index and filter postings more effectively.
+            </p>
+
+            <hr/>
+
+            <h3>2. 📰 Extracting Names and Organizations from News Articles</h3>
+
+            <p>NER is frequently used in media monitoring to track entities (people, companies, countries) mentioned in news reports.</p>
+
+            <pre><code class="language-python">
+            news_snippet = """
+            President Joe Biden met with executives from Microsoft and Google to discuss AI regulations.
+            The meeting was held in Washington D.C. on April 12, 2024.
+            """
+
+            doc = nlp(news_snippet)
+
+            for ent in doc.ents:
+                print(f"{ent.text:30} ➤ {ent.label_} ➤ {spacy.explain(ent.label_)}")
+            </code></pre>
+
+            <h4>📤 Output:</h4>
+            <pre><code>
+            President Joe Biden            ➤ PERSON ➤ People, including fictional
+            Microsoft                      ➤ ORG    ➤ Companies, agencies, institutions
+            Google                         ➤ ORG    ➤ Companies, agencies, institutions
+            Washington D.C.                ➤ GPE    ➤ Countries, cities, states
+            April 12, 2024                 ➤ DATE   ➤ Absolute or relative dates or periods
+            </code></pre>
+
+            <p>This information can be used to populate knowledge graphs or generate summaries of current events automatically.</p>
+
+            <hr/>
+
+            <h3>3. 📄 Resume Parsing</h3>
+
+            <p>Recruitment tools use NER to extract skills, names, job titles, and edu
+
+        </section>
+
+        <section>
+            <h2>🛠️ Customize and Fine-Tune NER Model with spaCy</h2>
+
+            <p>
+            While spaCy’s pre-trained NER models are powerful, they may not detect domain-specific entities like product names, technical skills, or industry-specific terms. 
+            Fine-tuning allows you to teach the model new entity types or improve performance on specific data.
+            </p>
+
+            <h3>🎯 Goal:</h3>
+            <p>Let's train a spaCy model to recognize a custom entity label: <code>PRODUCT</code>.</p>
+
+            <h3>📦 Step 1: Setup and Import Dependencies</h3>
+            <pre><code class="language-python">
+            import spacy
+            from spacy.training.example import Example
+            from spacy.util import minibatch
+            import random
+            </code></pre>
+
+            <h3>📘 Step 2: Create a Training Dataset</h3>
+
+            <p>
+            Each training sample includes text and entity offsets for the new label.
+            </p>
+
+            <pre><code class="language-python">
+            TRAIN_DATA = [
+                ("I just bought a new iPhone 13 Pro", {"entities": [(21, 35, "PRODUCT")]}),
+                ("She uses a MacBook Air for work", {"entities": [(12, 23, "PRODUCT")]}),
+                ("The Samsung Galaxy S22 Ultra is amazing", {"entities": [(4, 29, "PRODUCT")]}),
+            ]
+            </code></pre>
+
+            <h3>🔧 Step 3: Load Base Model and Add New Label</h3>
+
+            <pre><code class="language-python">
+            nlp = spacy.load("en_core_web_sm")
+            ner = nlp.get_pipe("ner")
+
+            # Add new label
+            ner.add_label("PRODUCT")
+            </code></pre>
+
+            <h3>⚙️ Step 4: Train the Model</h3>
+
+            <pre><code class="language-python">
+            # Disable other pipelines for training
+            other_pipes = [pipe for pipe in nlp.pipe_names if pipe != "ner"]
+            with nlp.disable_pipes(*other_pipes):
+                optimizer = nlp.resume_training()
+                for i in range(20):  # 20 iterations
+                    random.shuffle(TRAIN_DATA)
+                    losses = {}
+                    batches = minibatch(TRAIN_DATA, size=2)
+                    for batch in batches:
+                        for text, annotations in batch:
+                            example = Example.from_dict(nlp.make_doc(text), annotations)
+                            nlp.update([example], drop=0.3, losses=losses)
+                    print(f"Iteration {i} — Losses: {losses}")
+            </code></pre>
+
+            <h3>✅ Step 5: Test the Trained Model</h3>
+
+            <pre><code class="language-python">
+            test_text = "I'm thinking of buying the new Samsung Galaxy S22 Ultra."
+            doc = nlp(test_text)
+
+            for ent in doc.ents:
+                print(f"{ent.text:30} ➤ {ent.label_}")
+            </code></pre>
+
+            <h4>📤 Sample Output:</h4>
+            <pre><code>
+            Samsung Galaxy S22 Ultra      ➤ PRODUCT
+            </code></pre>
+
+            <h3>📚 Summary</h3>
+            <ul>
+            <li>Training is done on small batches with dropout to prevent overfitting.</li>
+            <li>Fine-tuning can be done quickly with a small dataset for niche entity types.</li>
+            <li>Newly learned labels coexist with pre-trained ones like PERSON, ORG, etc.</li>
+            </ul>
+
+            <p>For larger or domain-specific use cases, consider exporting and saving your trained model using:</p>
+
+            <pre><code class="language-python">
+            nlp.to_disk("custom_ner_model")
+            </code></pre>
+
+            <p>And later load it with:</p>
+
+            <pre><code class="language-python">
+            custom_nlp = spacy.load("custom_ner_model")
+            </code></pre>
+
+        </section>
+
+        <section>
+            <h2>✅ Conclusion</h2>
+
+            <p>
+            In this tutorial, we explored <strong>Named Entity Recognition (NER)</strong> using the powerful <a href="https://spacy.io/" target="_blank">spaCy</a> NLP library. Whether you're a beginner or a developer looking to apply NER in real-world scenarios, here’s what you’ve accomplished:
+            </p>
+
+            <h3>🧱 Key Takeaways:</h3>
+
+            <ul>
+            <li>💡 <strong>Introduction to NER:</strong> You learned what NER is and why it's important in processing human language for extracting structured information.</li>
+            <li>📥 <strong>Installation & Setup:</strong> Step-by-step guide to install spaCy and download the English model.</li>
+            <li>📦 <strong>Load Pre-trained Model:</strong> How to load and use spaCy’s <code>en_core_web_sm</code> model to perform NER on simple text.</li>
+            <li>🔍 <strong>Entity Types Explained:</strong> Detailed overview of the entity categories detected by spaCy such as PERSON, ORG, GPE, DATE, and more.</li>
+            <li>🧠 <strong>Perform NER:</strong> Parsing text and extracting entities using pre-trained models and displaying results programmatically.</li>
+            <li>🎨 <strong>Visualize Entities:</strong> Using <code>displaCy</code> to highlight and render entities in your browser for easy interpretation and debugging.</li>
+            <li>🌍 <strong>Real-World Use Cases:</strong> Applied NER to extract useful information from job listings, news articles, and financial texts.</li>
+            <li>🛠️ <strong>Customize and Fine-Tune:</strong> You trained a model to recognize custom entities (e.g., PRODUCT) with just a few training examples.</li>
+            </ul>
+
+            <h3>🛤️ Next Steps:</h3>
+            <p>
+            This tutorial gives you a strong foundation to build upon. Consider the following for further learning:
+            </p>
+            <ul>
+            <li>Export and deploy your fine-tuned model into production pipelines.</li>
+            <li>Explore more complex training datasets using <code>.spacy</code> format and config-based training.</li>
+            <li>Integrate NER with other components like text classification, sentiment analysis, or question answering.</li>
+            </ul>
+
+            <h3>📚 Resources:</h3>
+            <ul>
+            <li><a href="https://spacy.io" target="_blank">spaCy Official Website</a></li>
+            <li><a href="https://spacy.io/usage/spacy-101" target="_blank">spaCy 101</a></li>
+            <li><a href="https://course.spacy.io" target="_blank">Free spaCy Online Course</a></li>
+            </ul>
+
+            <p>
+            🧠 Keep experimenting, building, and training your models! With spaCy, NLP becomes intuitive and production-ready.
+            </p>
+
+
+        </section>
+    </main>
+</body>
+</html>
